@@ -1,10 +1,9 @@
+#include <QStringList>
+#include <QtDBus/QDBusAbstractAdaptor>
+#include <QDebug>
+
 #ifndef SHARINGFRAMEWORK_H
 #define SHARINGFRAMEWORK_H
-
-#include <QStringList>
-#include <QtDBus>
-#include <QDebug>
-#include <iostream>
 
 class SharingFramework : public QDBusAbstractAdaptor {
     Q_OBJECT
@@ -16,15 +15,19 @@ public:
     QStringList formatList() const;
 
 public slots:
-    void registerFormats(QStringList stringList);
+    void registerFormats(QStringList formatList);
+    void addFormat(QString format);
+    void registerLaunchDBus(QString name, QString exec);
 
 signals:
-    void formatsChanged(QStringList stringList);
+    void formatsChanged(QStringList formatList);
+    void launchRegistered();
 
-public:
+private:
     QStringList m_formatList;
     QString m_nameService, m_pathService;
 };
 
 #endif // SHARINGFRAMEWORK_H
+
 
