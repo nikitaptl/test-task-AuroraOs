@@ -16,6 +16,10 @@ add_executable(test-task-AuroraOs
   main.cpp
   SharingFramework.h
   SharingFramework.cpp
+  ConfigManager.h
+  ConfigManager.cpp
+  Validator.h
+  InputValidator.cpp
 )
 target_link_libraries(test-task-AuroraOs Qt${QT_VERSION_MAJOR}::Core Qt5::DBus)
 
