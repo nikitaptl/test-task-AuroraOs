@@ -3,18 +3,22 @@
 #include <QtDBus/QDBusConnectionInterface>
 #include <QFile>
 
-SharingFramework::SharingFramework(QObject *parent, QString nameService, QString pathService) : QDBusAbstractAdaptor(parent) {
-    m_nameService = nameService;
-    m_pathService = pathService;
+SharingFramework::SharingFramework(QObject *parent, QString nameService,
+                                   QString pathService, QString pathExecutable) :
+    QDBusAbstractAdaptor(parent), m_nameService(nameService),
+    m_pathService(pathService), m_pathExecutable(pathExecutable)
+{
+    QDir dir(pathExecutable);
+    dir.cdUp();
+    configManager.setPath(dir.absolutePath());
     QDBusConnection dbusConnection = QDBusConnection::sessionBus();
-
     if(dbusConnection.interface()->isServiceRegistered(nameService)) {
-        qDebug() << "The service has already been launched";
+        writeMessage("The service has already been launched");
         exit(1);
     }
     dbusConnection.registerObject(pathService, parent);
     dbusConnection.registerService(nameService);
-    qDebug() << "New service is registered!";
+    writeMessage("New service is registered!");
     configManager.loadConfiguration(m_formatList);
     connect(&configManager, &ConfigManager::messageSignal, this, &SharingFramework::writeMessage);
 }
@@ -24,33 +28,34 @@ QStringList SharingFramework::formatList() const {
 }
 
 QString SharingFramework::registerFormats(QStringList formatList) {
-    Response response = configManager.registerFormats(formatList);
-    if (!response.is_successful) {
-        qDebug() << response.message;
+    if(const auto& [is_successful, message] = configManager.registerFormats(formatList); !is_successful) {
+        writeMessage(message);
+        return message;
     }
     return "The formats were successfully registered";
 }
 
 QString SharingFramework::addFormat(QString format) {
-    Response response = configManager.addFormat(format);
-    if (!response.is_successful) {
-        qDebug() << response.message;
-        return response.message;
+    if(const auto& [is_successful, message] = configManager.addFormat(format); !is_successful) {
+        writeMessage(message);
+        return message;
     }
     return "The new format has been successfully added";
 }
 
 QString SharingFramework::deleteFormat(QString format) {
-    Response response = configManager.deleteFormat(format);
-    if (!response.is_successful) {
-        qDebug() << response.message;
-        return response.message;
+    if(const auto& [is_successful, message] = configManager.deleteFormat(format); !is_successful) {
+        writeMessage(message);
+        return message;
     }
     return "The format has been successfully deleted";
 }
 
 QStringList SharingFramework::GetSupportedFileTypes() {
-    configManager.loadConfiguration(m_formatList);
+    if(const auto& [is_successful, message] = configManager.loadConfiguration(m_formatList); !is_successful) {
+        writeMessage(message);
+        return QStringList{message};
+    }
     return m_formatList;
 }
 
@@ -58,9 +63,18 @@ void SharingFramework::writeMessage(const QString& message) {
     qDebug() << message;
 }
 
-QString SharingFramework::registerLaunchDBus(QStringList args) {
+QString SharingFramework::createServiceFile() {
+    if(m_pathExecutable == "NULL") {
+        writeMessage("You have not defined the default path to the executable file");
+        return "You have not defined the default path to the executable file";
+    }
+    return createServiceFile(QStringList{m_nameService, m_pathExecutable});
+}
+
+QString SharingFramework::createServiceFile(QStringList args) {
     if(args.size() != 2) {
-        return "Incorrect number of arguments";
+        writeMessage("Incorrect number of arguments. Enter the name of the service and the path to the executable file");
+        return "Incorrect number of arguments. Enter the name of the service and the path to the executable file";
     }
     QString name = args[0];
     QString pathExec = args[1];
@@ -68,7 +82,7 @@ QString SharingFramework::registerLaunchDBus(QStringList args) {
 
     if(!serviceFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         qCritical() << "Failed to open .service file";
-        return "Failed to open .service file";
+        writeMessage("Failed to open .service file");
     }
 
     QTextStream out(&serviceFile);
@@ -77,6 +91,24 @@ QString SharingFramework::registerLaunchDBus(QStringList args) {
     out << "Exec=" << pathExec << Qt::endl;
     serviceFile.close();
 
-    qDebug() << "Service file created successfully";
-    return "Service file created successfully";
+    QString message = "Now you can use command \"sudo mv " + name +
+                      ".service" + " /usr/share/dbus-1/services\" to register the launch of the program in the system ";
+    writeMessage(".service file created successfully");
+    writeMessage(message);
+    return ".service file created successfully. " + message;
+}
+
+QString SharingFramework::openFile(QString path) {
+    if(const auto& [is_successful, message] = configManager.loadConfiguration(m_formatList); !is_successful) {
+        writeMessage(message);
+        return message;
+    }
+    if(const auto& [is_successful, message] = validator.validateFilePath(path, m_formatList); !is_successful) {
+        writeMessage(message);
+        return message;
+    }
+    m_path = path;
+    writeMessage("The application has successfully received the file for processing");
+    emit newFile(path);
+    return "The application has successfully received the file for processing";
 }

@@ -6,30 +6,31 @@
 #include <QSet>
 #include <QSettings>
 #include <QObject>
+#include <QScopedPointer>
 
 const QString CONFIG_FORMATS = "General/SupportedFileTypes";
 
 class ConfigManager : public QObject {
     Q_OBJECT
 public:
-    explicit ConfigManager(const QString& filePath = "formats.conf", QObject *parent = nullptr);
+    explicit ConfigManager(const QString& filePath = QDir::currentPath(), QObject *parent = nullptr);
 
     void createConfiguration(const QStringList& formatList);
     Response registerFormats(const QStringList& formatList);
     Response addFormat(const QString& format);
     Response deleteFormat(const QString& format);
     Response loadConfiguration(QStringList& formatList);
-    bool isConfCreated() const;
+    void setPath(const QString& format);
 
 signals:
     void messageSignal(const QString& message);
 
-private:
+public:
     QString m_filePath;
     QSet<QString> m_formatList;
-    QSettings m_settings;
+    QScopedPointer<QSettings> m_settings;
     InputValidator validator;
-    bool m_isConfCreated = false;
 };
 
 #endif // CONFIGMANAGER_H
+

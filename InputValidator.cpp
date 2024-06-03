@@ -21,6 +21,24 @@ Response InputValidator::validateFormatList(const QSet<QString>& formatList) {
     }
     return Response();
 }
+Response InputValidator::validateFilePath(const QString& filePath, const QStringList& formatList) {
+    QRegularExpression regex("\\.([^.]+)$");
+    QRegularExpressionMatch match = regex.match(filePath);
+    if (!match.hasMatch()) {
+        return Response{false, "The format of this file is not supported"};
+    }
+    QString format = match.captured(1);
+
+    QStringList formatsWithoutDot;
+    for (const QString& formatInList : formatList) {
+        formatsWithoutDot << formatInList.mid(1);
+    }
+
+    if (!formatsWithoutDot.contains(format, Qt::CaseInsensitive)) {
+        return Response{false, "The format of this file is not supported"};
+    }
+    return Response();
+}
 
 QSet<QString> InputValidator::listToSet(const QStringList& list) {
     QSet<QString> uniqueSet;
