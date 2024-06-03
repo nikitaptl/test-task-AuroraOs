@@ -1,0 +1,5 @@
+/build
+CMakeLists.txt.user
+main.cpp
+/src/build
+/src/CMakeLists.txt.user
