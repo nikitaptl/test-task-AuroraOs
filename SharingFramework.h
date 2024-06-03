@@ -25,6 +25,7 @@ public slots:
     QString createServiceFile();
     QString createServiceFile(QStringList args);
     QString openFile(QString path);
+    void stop();
 
 private slots:
     void writeMessage(const QString& message);

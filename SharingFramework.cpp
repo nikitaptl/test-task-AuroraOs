@@ -11,6 +11,7 @@ SharingFramework::SharingFramework(QObject *parent, QString nameService,
     QDir dir(pathExecutable);
     dir.cdUp();
     configManager.setPath(dir.absolutePath());
+
     QDBusConnection dbusConnection = QDBusConnection::sessionBus();
     if(dbusConnection.interface()->isServiceRegistered(nameService)) {
         writeMessage("The service has already been launched");
@@ -64,10 +65,6 @@ void SharingFramework::writeMessage(const QString& message) {
 }
 
 QString SharingFramework::createServiceFile() {
-    if(m_pathExecutable == "NULL") {
-        writeMessage("You have not defined the default path to the executable file");
-        return "You have not defined the default path to the executable file";
-    }
     return createServiceFile(QStringList{m_nameService, m_pathExecutable});
 }
 
@@ -78,7 +75,9 @@ QString SharingFramework::createServiceFile(QStringList args) {
     }
     QString name = args[0];
     QString pathExec = args[1];
-    QFile serviceFile(name + ".service");
+    QDir dir(m_pathExecutable);
+    dir.cdUp();
+    QFile serviceFile(dir.absolutePath() + "/" + name + ".service");
 
     if(!serviceFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         qCritical() << "Failed to open .service file";
@@ -111,4 +110,8 @@ QString SharingFramework::openFile(QString path) {
     writeMessage("The application has successfully received the file for processing");
     emit newFile(path);
     return "The application has successfully received the file for processing";
+}
+
+void SharingFramework::stop() {
+    exit(1);
 }
