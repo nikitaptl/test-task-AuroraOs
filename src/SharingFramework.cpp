@@ -2,6 +2,9 @@
 #include <QtDBus/QDBusConnection>
 #include <QtDBus/QDBusConnectionInterface>
 #include <QFile>
+#include <QDir>
+#include <QDebug>
+#include "ServiceException.h"
 
 SharingFramework::SharingFramework(QObject *parent, QString nameService,
                                    QString pathService, QString pathExecutable) :
@@ -15,7 +18,7 @@ SharingFramework::SharingFramework(QObject *parent, QString nameService,
     QDBusConnection dbusConnection = QDBusConnection::sessionBus();
     if(dbusConnection.interface()->isServiceRegistered(nameService)) {
         writeMessage("The service has already been launched");
-        exit(1);
+        throw ServiceException("Service already launched");
     }
     dbusConnection.registerObject(pathService, parent);
     dbusConnection.registerService(nameService);
@@ -80,8 +83,8 @@ QString SharingFramework::createServiceFile(QStringList args) {
     QFile serviceFile(dir.absolutePath() + "/" + name + ".service");
 
     if(!serviceFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qCritical() << "Failed to open .service file";
         writeMessage("Failed to open .service file");
+        throw ServiceException("Failed to open .service file");
     }
 
     QTextStream out(&serviceFile);
@@ -113,5 +116,5 @@ QString SharingFramework::openFile(QString path) {
 }
 
 void SharingFramework::stop() {
-    exit(1);
+    emit stopRequested();
 }
