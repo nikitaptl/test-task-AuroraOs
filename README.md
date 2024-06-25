@@ -1,4 +1,39 @@
 <h1 align = 'center'>SharingFramework</h1>
+<h1 align = 'center'>ИЗМЕНЕНО</h1>
+
+### 1. Вынесение фреймворка в динамическую библиотеку
+
+Фреймворк вынесен в динамическую библиотеку `libSharingFramework.so`. Добавлен пример простейшего обработчика, который принимает на вход текстовый файл и выводит его содержимое на экран. Демонстрация: 
+
+https://github.com/nikitaptl/test-task-AuroraOs/assets/145208333/2c6a1083-1529-408a-900f-0be62d20f6c4
+
+### 2. Поправки в `CMakeLists.txt`
+
+В `CMakeLists.txt` добавлена следующая конфигурация:
+```cmake
+find_package(Qt5 REQUIRED COMPONENTS Core DBus)
+target_link_libraries(test-task-AuroraOs Qt5::Core Qt5::DBus)
+```
+### 3. Явное задание пути к конфигурационному файлу
+Путь к конфигурационному файлу теперь задаётся явно последним параметром в конструкторе:
+
+```cpp
+SharingFramework sharingFramework(&w, "txt.Handler", "/txt/Handler", "/home/nikita_ptl/Qt/test-task-AuroraOs/application");
+```
+### 4. Обработка случая, когда служба уже запущена
+При попытке повторного запуска службы теперь выбрасывается исключение:
+```cpp
+if(dbusConnection.interface()->isServiceRegistered(nameService)) {
+    writeMessage("The service has already been launched");
+    throw ServiceException("The service has already been launched");
+}
+```
+### 5. Завершение работы программы с использованием сигнала stopRequested
+Для завершения работы программы теперь используется сигнал stopRequested. Разработчик подключает свой метод к сигналу и определяет, какие действия должны быть выполнены перед завершением работы программы.
+```cpp
+connect(&sharingFramework, &SharingFramework::stopRequested, this, &YourClass::yourMethod);
+```
+
 <h2 align = 'center'>Задание выполнил Потылицин Никита</h2>
 <h3 align = 'center'>Краткое описание идеи</h3>
 
