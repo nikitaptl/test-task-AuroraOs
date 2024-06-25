@@ -20,7 +20,6 @@ add_executable(test-task-AuroraOs
   Validator.h
   InputValidator.cpp
   ServiceException.h
-
 )
 
 target_link_libraries(test-task-AuroraOs Qt5::Core Qt5::DBus)

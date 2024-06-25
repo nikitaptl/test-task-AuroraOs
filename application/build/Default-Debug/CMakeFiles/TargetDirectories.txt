@@ -1,0 +1,9 @@
+/home/nikita_ptl/Qt/test-task-AuroraOs/application/build/Default-Debug/CMakeFiles/application.dir
+/home/nikita_ptl/Qt/test-task-AuroraOs/application/build/Default-Debug/CMakeFiles/edit_cache.dir
+/home/nikita_ptl/Qt/test-task-AuroraOs/application/build/Default-Debug/CMakeFiles/rebuild_cache.dir
+/home/nikita_ptl/Qt/test-task-AuroraOs/application/build/Default-Debug/CMakeFiles/list_install_components.dir
+/home/nikita_ptl/Qt/test-task-AuroraOs/application/build/Default-Debug/CMakeFiles/install.dir
+/home/nikita_ptl/Qt/test-task-AuroraOs/application/build/Default-Debug/CMakeFiles/install/local.dir
+/home/nikita_ptl/Qt/test-task-AuroraOs/application/build/Default-Debug/CMakeFiles/install/strip.dir
+/home/nikita_ptl/Qt/test-task-AuroraOs/application/build/Default-Debug/CMakeFiles/application_autogen_timestamp_deps.dir
+/home/nikita_ptl/Qt/test-task-AuroraOs/application/build/Default-Debug/CMakeFiles/application_autogen.dir
