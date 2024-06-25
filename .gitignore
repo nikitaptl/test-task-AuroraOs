@@ -1,6 +1,6 @@
 /build
 CMakeLists.txt.user
-main.cpp
 /src/build
+src/main.cpp
 /src/CMakeLists.txt.user
 /src/.idea/
