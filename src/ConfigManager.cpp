@@ -1,4 +1,5 @@
 #include "ConfigManager.h"
+#include <QDebug>
 
 ConfigManager::ConfigManager(const QString& filePath, QObject *parent) :
     QObject(parent),

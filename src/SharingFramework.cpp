@@ -2,23 +2,17 @@
 #include <QtDBus/QDBusConnection>
 #include <QtDBus/QDBusConnectionInterface>
 #include <QFile>
-#include <QDir>
-#include <QDebug>
-#include "ServiceException.h"
 
 SharingFramework::SharingFramework(QObject *parent, QString nameService,
-                                   QString pathService, QString pathExecutable) :
-    QDBusAbstractAdaptor(parent), m_nameService(nameService),
-    m_pathService(pathService), m_pathExecutable(pathExecutable)
+                                   QString pathService, QString pathConfig) :
+    QDBusAbstractAdaptor(parent), m_pathConfig(pathConfig),
+    m_nameService(nameService), m_pathService(pathService),
+    configManager(m_pathConfig)
 {
-    QDir dir(pathExecutable);
-    dir.cdUp();
-    configManager.setPath(dir.absolutePath());
-
     QDBusConnection dbusConnection = QDBusConnection::sessionBus();
     if(dbusConnection.interface()->isServiceRegistered(nameService)) {
         writeMessage("The service has already been launched");
-        throw ServiceException("Service already launched");
+        throw ServiceException("The service has already been launched");
     }
     dbusConnection.registerObject(pathService, parent);
     dbusConnection.registerService(nameService);
@@ -67,10 +61,6 @@ void SharingFramework::writeMessage(const QString& message) {
     qDebug() << message;
 }
 
-QString SharingFramework::createServiceFile() {
-    return createServiceFile(QStringList{m_nameService, m_pathExecutable});
-}
-
 QString SharingFramework::createServiceFile(QStringList args) {
     if(args.size() != 2) {
         writeMessage("Incorrect number of arguments. Enter the name of the service and the path to the executable file");
@@ -78,13 +68,12 @@ QString SharingFramework::createServiceFile(QStringList args) {
     }
     QString name = args[0];
     QString pathExec = args[1];
-    QDir dir(m_pathExecutable);
-    dir.cdUp();
-    QFile serviceFile(dir.absolutePath() + "/" + name + ".service");
+    QString pathService = args.size() == 2 ? m_pathConfig : args[2];
+    QFile serviceFile(pathService + "/" + name + ".service");
 
     if(!serviceFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qCritical() << "Failed to open .service file";
         writeMessage("Failed to open .service file");
-        throw ServiceException("Failed to open .service file");
     }
 
     QTextStream out(&serviceFile);
