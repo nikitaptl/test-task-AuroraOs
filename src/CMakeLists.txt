@@ -9,8 +9,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core DBus)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core DBus)
+find_package(Qt5 REQUIRED COMPONENTS Core DBus)
 
 add_executable(test-task-AuroraOs
   main.cpp
@@ -20,8 +19,10 @@ add_executable(test-task-AuroraOs
   ConfigManager.cpp
   Validator.h
   InputValidator.cpp
+  ServiceException.h
 )
-target_link_libraries(test-task-AuroraOs Qt${QT_VERSION_MAJOR}::Core Qt5::DBus)
+
+target_link_libraries(test-task-AuroraOs Qt5::Core Qt5::DBus)
 
 include(GNUInstallDirs)
 install(TARGETS test-task-AuroraOs
